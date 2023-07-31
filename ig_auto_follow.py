@@ -11,19 +11,17 @@ from selenium.webdriver.common.keys import Keys
 from configparser import ConfigParser
 
 class AutoFollow:
-    def __init__(self, id, pwd, keyword, total_follow_limit, account_follow_limit):
+    def __init__(self, id, pwd, keywords, account_follow_limit):
         self.id = id
         self.pwd = pwd
-        self.keyword = keyword
-        self.total_follow_limit = total_follow_limit
+        self.keywords = keywords
         self.account_follow_limit = account_follow_limit
 
-        self.stop = False 
         if os.path.exists("send_follow_account.json"):
             with open("send_follow_account.json", "r") as f:
                 self.send_follow_account = json.load(f)
         else:
-            self.send_follow_account = []  
+            self.send_follow_account = []
 
         self.driver = webdriver.Chrome(options = self.set_chrome_options())     
 
@@ -55,17 +53,18 @@ class AutoFollow:
         # WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((By.XPATH, "//button[@class='_a9-- _a9_1']")))
         # self.driver.find_element(By.XPATH, "//button[@class='_a9-- _a9_1']").click()
     
-    def get_fan_account_url(self):
+    def get_fan_account_url(self, keyword):
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='搜尋輸入']")))
-        self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(self.keyword)
+        self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(keyword)
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@role='none']/a")))
         self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@role='none']/a") if "/explore/" not in i.get_attribute("href")]
-        print("fan_account_url:", len(self.fan_account_url))
+        print(f"keyword: {keyword}")
 
-    def follow(self):
+    def follow(self, keyword_follow_limit):
         send_folllow = 0
+        stop = False
         for url in self.fan_account_url:
-            if self.stop:
+            if stop:
                 break
 
             self.driver.get(url)
@@ -81,7 +80,7 @@ class AutoFollow:
             accounts = self.driver.find_elements(By.XPATH, "//div[@class='_aano']/div[1]/div/div")
             same_fan_account_follow = 0
             for i in accounts:
-                if send_folllow < self.total_follow_limit:
+                if send_folllow < keyword_follow_limit:
                     if same_fan_account_follow < self.account_follow_limit:
                         button = i.find_element(By.XPATH, ".//div/div/div/div[3]//button")
                         if button.find_element(By.XPATH, ".//div/div").text == "追蹤":
@@ -93,27 +92,32 @@ class AutoFollow:
                     else:
                         break
                 else:
-                    self.stop = True
+                    stop = True
                     break
-
-        with open("send_follow_account.json", "w") as f:
-            json.dump(self.send_follow_account, f, indent = 4)
         
-        print(f"follow status: {send_folllow}/{self.total_follow_limit}")
+        print(f"follow status: {send_folllow}/{keyword_follow_limit}")
+        print("==========================")
 
     def run(self):
         self.login()
-        self.get_fan_account_url()
-        self.follow()
+        for keyword, keyword_follow_limit in self.keywords.items():
+            self.get_fan_account_url(keyword)
+            self.follow(keyword_follow_limit)
+            self.driver.get("https://www.instagram.com/")
         self.driver.quit()
+
+        with open("send_follow_account.json", "w") as f:
+            json.dump(self.send_follow_account, f, indent = 4)
 
 if __name__ == "__main__":
     cfg = ConfigParser()
     cfg.read("cfg.ini", encoding="utf-8")
     ID = cfg["ig_login_information"]["id"]
     PWD = cfg["ig_login_information"]["password"]
-    KEYWORD = cfg["condition"]["keyword"]
-    TOTAL_FOLLOW_LIMIT = int(cfg["condition"]["total_follow_limit"])
+    KEYWORDS = {}
+    for k in cfg["condition"]["keywords"].split():
+        key, value = k.split(":")
+        KEYWORDS[key] = int(value)
     ACCOUNT_FOLLOW_LIMIT = int(cfg["condition"]["account_follow_limit"])
-    bot = AutoFollow(ID, PWD, KEYWORD, TOTAL_FOLLOW_LIMIT, ACCOUNT_FOLLOW_LIMIT)
+    bot = AutoFollow(ID, PWD, KEYWORDS, ACCOUNT_FOLLOW_LIMIT)
     bot.run()

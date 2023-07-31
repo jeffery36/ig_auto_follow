@@ -1,6 +1,7 @@
 import time
 import random
 import json
+import os
 import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -17,10 +18,14 @@ class AutoFollow:
         self.total_follow_limit = total_follow_limit
         self.account_follow_limit = account_follow_limit
 
-        self.send_follow_account = []
-        self.stop = False
+        self.stop = False 
+        if os.path.exists("send_follow_account.json"):
+            with open("send_follow_account.json", "r") as f:
+                self.send_follow_account = json.load(f)
+        else:
+            self.send_follow_account = []  
 
-        self.driver = webdriver.Chrome(options = self.set_chrome_options())
+        self.driver = webdriver.Chrome(options = self.set_chrome_options())     
 
     def set_chrome_options(self):
         # chromedriver_autoinstaller.install(cwd=True)
@@ -58,6 +63,7 @@ class AutoFollow:
         print("fan_account_url:", len(self.fan_account_url))
 
     def follow(self):
+        send_folllow = 0
         for url in self.fan_account_url:
             if self.stop:
                 break
@@ -75,13 +81,14 @@ class AutoFollow:
             accounts = self.driver.find_elements(By.XPATH, "//div[@class='_aano']/div[1]/div/div")
             same_fan_account_follow = 0
             for i in accounts:
-                if len(self.send_follow_account) < self.total_follow_limit:
+                if send_folllow < self.total_follow_limit:
                     if same_fan_account_follow < self.account_follow_limit:
                         button = i.find_element(By.XPATH, ".//div/div/div/div[3]//button")
                         if button.find_element(By.XPATH, ".//div/div").text == "追蹤":
                             button.click()
                             self.send_follow_account.append(i.find_element(By.XPATH, ".//div/div/div/div[1]//a").get_attribute("href"))
                             same_fan_account_follow += 1
+                            send_folllow += 1
                         time.sleep(random.uniform(1.0, 5.0))
                     else:
                         break
@@ -92,7 +99,7 @@ class AutoFollow:
         with open("send_follow_account.json", "w") as f:
             json.dump(self.send_follow_account, f, indent = 4)
         
-        print(f"follow status: {len(self.send_follow_account)}/{self.total_follow_limit}")
+        print(f"follow status: {send_folllow}/{self.total_follow_limit}")
 
     def run(self):
         self.login()

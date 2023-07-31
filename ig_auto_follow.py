@@ -29,7 +29,7 @@ class AutoFollow:
         return chrome_options
     
     def login(self):
-        self.driver.set_window_size(750, 450)
+        self.driver.set_window_size(780, 450)
         self.driver.get("https://www.instagram.com/accounts/login/")
         WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.NAME, "username")))
         self.driver.find_element(By.NAME, "username").send_keys(self.id)
@@ -61,7 +61,6 @@ class AutoFollow:
 
             self.driver.get(url)
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//ul[@class='x78zum5 x1q0g3np xieb3on']/li[2]/a")))
-            self.driver.execute_script(f"window.scrollTo(0, {350});")
             self.driver.find_element(By.XPATH, "//ul[@class='x78zum5 x1q0g3np xieb3on']/li[2]/a").click()
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.CLASS_NAME, "_aano")))
 

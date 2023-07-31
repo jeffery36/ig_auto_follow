@@ -1,5 +1,6 @@
 import time
 import random
+import json
 import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,11 +16,14 @@ class AutoFollow:
         self.keyword = keyword
         self.total_follow_limit = total_follow_limit
         self.account_follow_limit = account_follow_limit
+
+        self.send_follow_account = []
         self.stop = False
+
         self.driver = webdriver.Chrome(options = self.set_chrome_options())
 
     def set_chrome_options(self):
-        chromedriver_autoinstaller.install(cwd=True)
+        # chromedriver_autoinstaller.install(cwd=True)
         chrome_options = webdriver.ChromeOptions()
         chrome_options.page_load_strategy = 'eager'
         chrome_options.add_argument("--disable-notifications")
@@ -54,7 +58,6 @@ class AutoFollow:
         print("fan_account_url:", len(self.fan_account_url))
 
     def follow(self):
-        send_follow = 0
         for url in self.fan_account_url:
             if self.stop:
                 break
@@ -65,30 +68,32 @@ class AutoFollow:
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.CLASS_NAME, "_aano")))
 
             modal = self.driver.find_element(By.CLASS_NAME, "_aano")
-            for i in range(10):
+            for i in range(2):
                 self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal)
-                time.sleep(5)
+                time.sleep(3)
 
             accounts = self.driver.find_elements(By.XPATH, "//div[@class='_aano']/div[1]/div/div")
             same_fan_account_follow = 0
             for i in accounts:
-                if send_follow < self.total_follow_limit:
+                if len(self.send_follow_account) < self.total_follow_limit:
                     if same_fan_account_follow < self.account_follow_limit:
-                        print(i.find_element(By.XPATH, ".//div/div/div/div[1]//a").get_attribute("href"))
                         button = i.find_element(By.XPATH, ".//div/div/div/div[3]//button")
                         if button.find_element(By.XPATH, ".//div/div").text == "追蹤":
                             button.click()
-                            print("send follow")
+                            self.send_follow_account.append(i.find_element(By.XPATH, ".//div/div/div/div[1]//a").get_attribute("href"))
                             same_fan_account_follow += 1
-                            send_follow += 1
-                        else:
-                            print(button.find_element(By.XPATH, ".//div/div").text)
-                        time.sleep(random.uniform(10.0, 30.0))
+                        time.sleep(random.uniform(1.0, 5.0))
                     else:
                         break
                 else:
                     self.stop = True
+                    break
+
+        with open("send_follow_account.json", "w") as f:
+            json.dump(self.send_follow_account, f, indent = 4)
         
+        print(f"follow status: {len(self.send_follow_account)}/{self.total_follow_limit}")
+
     def run(self):
         self.login()
         self.get_fan_account_url()

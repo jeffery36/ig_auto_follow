@@ -58,7 +58,6 @@ class AutoFollow:
         self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(keyword)
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@role='none']/a")))
         self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@role='none']/a") if "/explore/" not in i.get_attribute("href")]
-        print(f"keyword: {keyword}")
 
     def follow(self, keyword_follow_limit):
         send_folllow = 0
@@ -101,6 +100,8 @@ class AutoFollow:
     def run(self):
         self.login()
         for keyword, keyword_follow_limit in self.keywords.items():
+            print("==========================")
+            print(f"keyword: {keyword}")
             self.get_fan_account_url(keyword)
             self.follow(keyword_follow_limit)
             self.driver.get("https://www.instagram.com/")

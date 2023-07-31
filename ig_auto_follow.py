@@ -29,7 +29,7 @@ class AutoFollow:
         return chrome_options
     
     def login(self):
-        self.driver.set_window_size(550, 450)
+        self.driver.set_window_size(750, 450)
         self.driver.get("https://www.instagram.com/accounts/login/")
         WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.NAME, "username")))
         self.driver.find_element(By.NAME, "username").send_keys(self.id)
@@ -50,19 +50,19 @@ class AutoFollow:
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='搜尋輸入']")))
         self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(self.keyword)
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@role='none']/a")))
-        self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@role='none']/a")]
+        self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@role='none']/a") if "/explore/" not in i.get_attribute("href")]
+        print("fan_account_url:", len(self.fan_account_url))
 
     def follow(self):
         send_follow = 0
         for url in self.fan_account_url:
             if self.stop:
                 break
-            if "explore/locations" in url:
-                continue
+
             self.driver.get(url)
-            WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//ul[@class='x1wzhzgj x78zum5 x1q0g3np x1l1ennw xz9dl7a x4uap5 xsag5q8 xkhd6sd']/li[2]/a")))
+            WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//ul[@class='x78zum5 x1q0g3np xieb3on']/li[2]/a")))
             self.driver.execute_script(f"window.scrollTo(0, {350});")
-            self.driver.find_element(By.XPATH, "//ul[@class='x1wzhzgj x78zum5 x1q0g3np x1l1ennw xz9dl7a x4uap5 xsag5q8 xkhd6sd']/li[2]/a").click()
+            self.driver.find_element(By.XPATH, "//ul[@class='x78zum5 x1q0g3np xieb3on']/li[2]/a").click()
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.CLASS_NAME, "_aano")))
 
             modal = self.driver.find_element(By.CLASS_NAME, "_aano")

@@ -11,9 +11,10 @@ from configparser import ConfigParser
 
 
 class AutoUnFollow:
-    def __init__(self, id, pwd):
+    def __init__(self, id, pwd, number):
         self.id = id
         self.pwd = pwd
+        self.number = number
 
         with open("send_follow_account.json", "r") as f:
             self.send_follow_account = json.load(f)
@@ -21,7 +22,7 @@ class AutoUnFollow:
         self.driver = webdriver.Chrome(options = self.set_chrome_options())
 
     def set_chrome_options(self):
-        # chromedriver_autoinstaller.install(cwd=True)
+        chromedriver_autoinstaller.install(cwd=True)
         chrome_options = webdriver.ChromeOptions()
         chrome_options.page_load_strategy = 'eager'
         chrome_options.add_argument("--disable-notifications")
@@ -50,7 +51,11 @@ class AutoUnFollow:
     
     def unfollow(self):
         fail_unfallow = self.send_follow_account.copy()
-        for url in self.send_follow_account:
+        for i in range(self.number):
+            try:
+                url = self.send_follow_account[i]
+            except:
+                break
             self.driver.get(url)
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@class='x6s0dn4 x78zum5 x1q0g3np xs83m0k xeuugli x1n2onr6']/div[1]/div/div/button")))
             button = self.driver.find_element(By.XPATH, "//div[@class='x6s0dn4 x78zum5 x1q0g3np xs83m0k xeuugli x1n2onr6']/div[1]/div/div/button")
@@ -68,7 +73,7 @@ class AutoUnFollow:
                     self.driver.find_element(By.XPATH, "//button[@class='_a9-- _a9-_']").click()
             
             fail_unfallow.remove(url)
-            time.sleep(random.uniform(2.0, 5.0))
+            time.sleep(random.uniform(5.0, 15.0))
         self.send_follow_account = fail_unfallow
     
     def run(self):
@@ -85,5 +90,6 @@ if __name__ == "__main__":
     cfg.read("cfg.ini", encoding="utf-8")
     ID = cfg["ig_login_information"]["id"]
     PWD = cfg["ig_login_information"]["password"]
-    bot = AutoUnFollow(ID, PWD)
+    NUMBER = int(cfg["unfollow"]["number"])
+    bot = AutoUnFollow(ID, PWD, NUMBER)
     bot.run()

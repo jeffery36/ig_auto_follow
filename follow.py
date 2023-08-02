@@ -26,7 +26,7 @@ class AutoFollow:
         self.driver = webdriver.Chrome(options = self.set_chrome_options())     
 
     def set_chrome_options(self):
-        # chromedriver_autoinstaller.install(cwd=True)
+        chromedriver_autoinstaller.install(cwd=True)
         chrome_options = webdriver.ChromeOptions()
         chrome_options.page_load_strategy = 'eager'
         chrome_options.add_argument("--disable-notifications")

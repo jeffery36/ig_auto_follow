@@ -49,6 +49,7 @@ class AutoUnFollow:
         # self.driver.find_element(By.XPATH, "//button[@class='_a9-- _a9_1']").click()
     
     def unfollow(self):
+        fail_unfallow = self.send_follow_account.copy()
         for url in self.send_follow_account:
             self.driver.get(url)
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@class='x6s0dn4 x78zum5 x1q0g3np xs83m0k xeuugli x1n2onr6']/div[1]/div/div/button")))
@@ -61,21 +62,23 @@ class AutoUnFollow:
                 if follow_status == "追蹤中":
                     modal = self.driver.find_element(By.XPATH, "//div[@class='x7r02ix xf1ldfh x131esax xdajt7p xxfnqb6 xb88tzc xw2csxc x1odjw0f x5fp0pe']")
                     self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal)
+                    time.sleep(0.5)
                     self.driver.find_element(By.XPATH, "//div[@class='x7r02ix xf1ldfh x131esax xdajt7p xxfnqb6 xb88tzc xw2csxc x1odjw0f x5fp0pe']/div/div/div/div[8]").click()
                 elif follow_status == "已送出請求":
                     self.driver.find_element(By.XPATH, "//button[@class='_a9-- _a9-_']").click()
-
-            self.send_follow_account.remove(url)
-            time.sleep(random.uniform(1.0, 3.0))
-        
-        with open("send_follow_account.json", "w") as f:
-            json.dump(self.send_follow_account, f)
+            
+            fail_unfallow.remove(url)
+            time.sleep(random.uniform(2.0, 5.0))
+        self.send_follow_account = fail_unfallow
     
     def run(self):
         self.login()
         time.sleep(3)
         self.unfollow()
         self.driver.quit()
+
+        with open("send_follow_account.json", "w") as f:
+            json.dump(self.send_follow_account, f, indent = 4)
 
 if __name__ == "__main__":
     cfg = ConfigParser()

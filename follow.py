@@ -56,8 +56,8 @@ class AutoFollow:
     def get_fan_account_url(self, keyword):
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='搜尋輸入']")))
         self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(keyword)
-        WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@role='none']/a")))
-        self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@role='none']/a") if "/explore/" not in i.get_attribute("href")]
+        WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@class='x9f619 x78zum5 xdt5ytf x1iyjqo2 x6ikm8r x1odjw0f xocp1fn']/a")))
+        self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@class='x9f619 x78zum5 xdt5ytf x1iyjqo2 x6ikm8r x1odjw0f xocp1fn']/a") if "/explore/" not in i.get_attribute("href")]
 
     def follow(self, keyword_follow_limit):
         send_folllow = 0

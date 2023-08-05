@@ -55,7 +55,7 @@ class AutoFollow:
     
     def get_fan_account_url(self, keyword):
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='搜尋輸入']")))
-        self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(keyword)
+        self.driver.find_element(By.XPATH, "//input[@aria-label='搜尋輸入']").send_keys(keyword) # //div[@class='x9f619 x78zum5 xdt5ytf x1iyjqo2 x6ikm8r x1odjw0f xocp1fn']/a
         WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@class='x9f619 x78zum5 xdt5ytf x1iyjqo2 x6ikm8r x1odjw0f xocp1fn']/a"))) # //div[@role='none']/a
         self.fan_account_url = [i.get_attribute("href") for i in self.driver.find_elements(By.XPATH, "//div[@class='x9f619 x78zum5 xdt5ytf x1iyjqo2 x6ikm8r x1odjw0f xocp1fn']/a") if "/explore/" not in i.get_attribute("href")]
 
@@ -72,22 +72,26 @@ class AutoFollow:
             WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.CLASS_NAME, "_aano")))
 
             modal = self.driver.find_element(By.CLASS_NAME, "_aano")
-            time.sleep(1)
+            WebDriverWait(self.driver, 45).until(EC.presence_of_element_located((By.XPATH, "//div[@class='_aano']/div[1]/div/div/div/div/div/div[3]/div/button")))
             for i in range(5):
                 self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal)
-                time.sleep(random.uniform(2.0, 3.0))
+                time.sleep(random.uniform(2.0, 5.0))
+
             accounts = self.driver.find_elements(By.XPATH, "//div[@class='_aano']/div[1]/div/div")
             same_fan_account_follow = 0
             for i in accounts:
                 if send_folllow < keyword_follow_limit:
                     if same_fan_account_follow < self.account_follow_limit:
-                        button = i.find_element(By.XPATH, ".//div/div/div/div[3]/div/button")
+                        try:
+                            button = i.find_element(By.XPATH, ".//div/div/div/div[3]/div/button")
+                        except:
+                            continue
                         if button.find_element(By.XPATH, ".//div/div").text == "追蹤":
                             button.click()
                             self.send_follow_account.append(i.find_element(By.XPATH, ".//div/div/div/div[1]//a").get_attribute("href"))
                             same_fan_account_follow += 1
                             send_folllow += 1
-                            time.sleep(random.uniform(3.0, 6.0))
+                            time.sleep(random.uniform(1.0, 3.0))
                         else:
                             time.sleep(0.2)
                     else:

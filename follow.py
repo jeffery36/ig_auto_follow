@@ -99,7 +99,10 @@ class AutoFollow:
                 else:
                     stop = True
                     break
-        
+
+            with open("send_follow_account.json", "w") as f:
+                json.dump(self.send_follow_account, f, indent = 4)
+
         print(f"follow status: {send_folllow}/{keyword_follow_limit}")
         print("==========================")
 
@@ -112,9 +115,6 @@ class AutoFollow:
             self.follow(keyword_follow_limit)
             self.driver.get("https://www.instagram.com/")
         self.driver.quit()
-
-        with open("send_follow_account.json", "w") as f:
-            json.dump(self.send_follow_account, f, indent = 4)
 
 if __name__ == "__main__":
     cfg = ConfigParser()

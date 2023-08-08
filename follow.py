@@ -86,7 +86,7 @@ class AutoFollow:
                             button = i.find_element(By.XPATH, ".//div/div/div/div[3]/div/button")
                         except:
                             continue
-                        if button.find_element(By.XPATH, ".//div/div").text == "追蹤":
+                        if button.is_enabled() and button.find_element(By.XPATH, ".//div/div").text == "追蹤":
                             button.click()
                             self.send_follow_account.append(i.find_element(By.XPATH, ".//div/div/div/div[1]//a").get_attribute("href"))
                             same_fan_account_follow += 1

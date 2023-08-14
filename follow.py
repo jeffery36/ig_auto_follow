@@ -19,9 +19,10 @@ class AutoFollow:
 
         if os.path.exists("send_follow_account.json"):
             with open("send_follow_account.json", "r") as f:
-                self.send_follow_account = json.load(f)
+                self.send_follow_account_dict = json.load(f)
         else:
-            self.send_follow_account = []
+            self.send_follow_account_dict = {} 
+        self.send_follow_account = self.send_follow_account_dict.get(self.id, [])
 
         self.driver = webdriver.Chrome(options = self.set_chrome_options())     
 
@@ -100,8 +101,9 @@ class AutoFollow:
                     stop = True
                     break
 
+            self.send_follow_account_dict[self.id] = self.send_follow_account
             with open("send_follow_account.json", "w") as f:
-                json.dump(self.send_follow_account, f, indent = 4)
+                json.dump(self.send_follow_account_dict, f, indent = 4)
 
         print(f"follow status: {send_folllow}/{keyword_follow_limit}")
         print("==========================")

@@ -80,17 +80,21 @@ class AutoUnFollow:
             
             fail_unfallow.remove(url)
             time.sleep(random.uniform(5.0, 15.0))
-        self.send_follow_account = fail_unfallow
+
+        if len(fail_unfallow):
+            self.send_follow_account = fail_unfallow
+            self.send_follow_account_dict[self.id] = self.send_follow_account
+        else:
+            self.send_follow_account_dict.pop(self.id)
+
+        with open("send_follow_account.json", "w") as f:
+            json.dump(self.send_follow_account_dict, f, indent = 4)
     
     def run(self):
         self.login()
         time.sleep(3)
         self.unfollow()
         self.driver.quit()
-
-        self.send_follow_account_dict[self.id] = self.send_follow_account
-        with open("send_follow_account.json", "w") as f:
-            json.dump(self.send_follow_account_dict, f, indent = 4)
 
 if __name__ == "__main__":
     cfg = ConfigParser()
